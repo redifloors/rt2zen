@@ -19,7 +19,7 @@ module RT2Zen
   class TestRT < Minitest::Test
     def setup
       if ENV['RT_SITE'].nil? or ENV['RT_USER'].nil? or ENV['RT_PASS'].nil?
-        abort 'You must set RT_SERVER, RT_USER, and RT_PASS environment variables first'
+        abort 'You must set RT_SITE, RT_USER, and RT_PASS environment variables first'
       else
         RT.connect config
       end
@@ -40,7 +40,7 @@ module RT2Zen
 
     def test_site
       assert RT.valid?, 'RT Should be valid'
-      assert_equal ENV['RT_SITE'], RT::site
+      assert_match /#{ENV['RT_SITE']}/, RT::site
       RT.site = nil
       assert_nil RT::site, 'RT::site should be nil'
       refute RT.valid?, 'RT Should not be valid any longer'
@@ -83,8 +83,22 @@ module RT2Zen
       end
     end
 
+    def test_get_data
+      hash = RT.get_data('ticket/1/show')
+      assert_instance_of Hash, hash
+      assert hash.has_key?(:id), 'RT.get_data is not returning an id key'
+    end
+
     def test_find
-      assert_instance_of RT::Ticket, RT::Ticket.find(1)
+      ticket = RT::Ticket.find(1)
+      assert_instance_of RT::Ticket, ticket
+      assert_equal 1, ticket.id
+    end
+
+    def test_invalid_ticket
+      assert_raises RuntimeError do
+        RT::Ticket.new()
+      end
     end
   end
 end

@@ -1,4 +1,5 @@
 require 'rt2zen'
+require 'pp'
 
 module RT2Zen
   config = {
@@ -8,8 +9,12 @@ module RT2Zen
   }
 
   RT.connect(config)
-  ticket = RT::Ticket.find(1002)
-  p ticket.response
+
+  tickets = RT::Tickets.new(%q(Status='resolved'))
+
+  # pp tickets
+
+  puts "Found #{tickets.count} open tickets"
 
   # tickets = RT::Ticket.new config
   # p tickets.find(1002)
