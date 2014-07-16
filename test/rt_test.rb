@@ -97,7 +97,7 @@ module RT2Zen
 
     def test_invalid_ticket
       assert_raises RuntimeError do
-        RT::Ticket.new()
+        RT::Ticket.new(nil)
       end
     end
   end

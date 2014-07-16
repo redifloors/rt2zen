@@ -63,10 +63,10 @@ module RT2Zen
     end
 
     class Ticket
-      def initialize(data = {})
-        raise RuntimeError, 'ID is a required data attribute to create a ticket' unless data.has_key?(:id)
+      def initialize(id)
+        raise RuntimeError, 'ID is a required data attribute to create a ticket' if id.nil?
 
-        id = /\d+/.match(data[:id])[0].to_i # pull integers out of string
+        id = /\d+/.match(id)[0].to_i # pull integers out of string
         raise ArgumentError, 'ID is invalid' if id.nil?
 
         @id      = id
@@ -77,7 +77,7 @@ module RT2Zen
       def self.find(ticket)
         raise ArgumentError, 'Ticket cannot be nil' if ticket.nil?
         data = RT.get_data("ticket/#{ticket}/show")
-        self.new(data) if data
+        self.new(data[:id]) if data.has_key?(:id)
       end
     end
 
@@ -85,9 +85,7 @@ module RT2Zen
       def initialize(query = nil)
         @tickets = []
         params = { query: query || %q(Status = 'open') }
-        RT.get_data('search/ticket', params).each do |id, subject|
-          @tickets << Ticket.new({id: id, subject: subject})
-        end
+        RT.get_data('search/ticket', params).each_key { |id| @tickets << Ticket.new(id) }
       end
 
       def count
