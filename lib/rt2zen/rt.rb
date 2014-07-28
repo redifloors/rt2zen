@@ -74,9 +74,9 @@ module RT2Zen
       end
       attr_reader :id
 
-      def self.find(ticket)
-        raise ArgumentError, 'Ticket cannot be nil' if ticket.nil?
-        data = RT.get_data("ticket/#{ticket}/show")
+      def self.find(id)
+        raise ArgumentError, 'Ticket ID cannot be nil' if id.nil?
+        data = RT.get_data("ticket/#{id}/show")
         self.new(data[:id]) if data.has_key?(:id)
       end
     end
@@ -84,12 +84,20 @@ module RT2Zen
     class Tickets
       def initialize(query = nil)
         @tickets = []
-        params = { query: query || %q(Status = 'open') }
-        RT.get_data('search/ticket', params).each_key { |id| @tickets << Ticket.new(id) }
+        if query.is_a?(Numeric)
+          @tickets << Ticket.find(query)
+        else
+          params = { query: query || %q(Status = 'open') }
+          RT.get_data('search/ticket', params).each_key { |id| @tickets << Ticket.new(id) }
+        end
       end
 
       def count
         @tickets.count
+      end
+
+      def each(&blk)
+        @tickets.each &blk
       end
     end
   end

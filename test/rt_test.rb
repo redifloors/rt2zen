@@ -100,5 +100,16 @@ module RT2Zen
         RT::Ticket.new(nil)
       end
     end
+
+    def test_count
+      tickets = RT::Tickets.new(%q(Id=1))
+      assert_respond_to tickets, :count
+      assert_equal 1, tickets.count
+    end
+
+    def test_each
+      tickets = RT::Tickets.new(%q(Id=1))
+      assert_respond_to tickets, :each
+    end
   end
 end
